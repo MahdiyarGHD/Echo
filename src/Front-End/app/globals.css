@@ -1,0 +1,25 @@
+@import "@fontsource/vazirmatn/400.css";
+@import "@fontsource/vazirmatn/700.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0f0f0f;
+  --surface: #1a1a1a;
+  --border: #2a2a2a;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: 'Vazirmatn', 'Inter', sans-serif;
+}
+
+[dir="rtl"] body {
+  font-family: 'Vazirmatn', sans-serif;
+}
