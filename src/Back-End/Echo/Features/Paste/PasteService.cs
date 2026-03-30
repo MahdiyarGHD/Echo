@@ -11,7 +11,8 @@ public class PasteService(
     EchoDbContext dbContext,
     AccessCodeGenerator codeGenerator,
     IValidator<CreatePasteRequest> validator,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor,
+    ILogger<PasteService> logger)
 {
     public async Task<PasteResponse> CreateAsync(CreatePasteRequest request, CancellationToken cancellationToken = default)
     {
@@ -38,6 +39,8 @@ public class PasteService(
         dbContext.Pastes.Add(paste);
         await dbContext.SaveChangesAsync(cancellationToken);
 
+        logger.LogInformation("Paste created with access code '{AccessCode}'.", accessCode);
+
         return PasteResponse.FromPaste(paste);
     }
 
@@ -48,15 +51,20 @@ public class PasteService(
             ?? throw new NotFoundException($"Paste with access code '{accessCode}' was not found.");
 
         if (paste.ExpirationTime.HasValue && paste.ExpirationTime.Value < DateTime.UtcNow)
+        {
+            logger.LogInformation("Access to expired paste '{AccessCode}' was attempted.", accessCode);
             throw new NotFoundException($"Paste with access code '{accessCode}' has expired.");
+        }
 
         if (paste.IsExplosive)
         {
             dbContext.Pastes.Remove(paste);
+            logger.LogInformation("Explosive paste '{AccessCode}' was read and deleted.", accessCode);
         }
         else
         {
             paste.ViewCount++;
+            logger.LogInformation("Paste '{AccessCode}' retrieved. View count: {ViewCount}.", accessCode, paste.ViewCount);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

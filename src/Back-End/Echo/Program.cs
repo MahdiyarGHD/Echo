@@ -1,7 +1,9 @@
 using Echo.Common.Middleware;
+using Echo.Common.Options;
 using Echo.Common.Persistence;
 using Echo.Common.Providers;
 using Echo.Common.Security;
+using Echo.Common.Services;
 using Echo.Features.Paste;
 using Echo.Features.Paste.DTOs;
 using FluentValidation;
@@ -21,6 +23,10 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreatePasteRequestValidator
 builder.Services.AddEchoRateLimiting(builder.Configuration);
 builder.Services.AddEchoCors(builder.Configuration);
 builder.Services.AddTransient<GlobalExceptionHandler>();
+
+builder.Services.Configure<PasteOptions>(builder.Configuration.GetSection(PasteOptions.SectionName));
+builder.Services.Configure<DatabaseMaintenanceOptions>(builder.Configuration.GetSection(DatabaseMaintenanceOptions.SectionName));
+builder.Services.AddHostedService<DatabaseMaintenanceService>();
 
 var app = builder.Build();
 

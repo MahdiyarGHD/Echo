@@ -1,4 +1,6 @@
+using Echo.Common.Options;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace Echo.Features.Paste.DTOs;
 
@@ -13,14 +15,14 @@ public class CreatePasteRequest
 
 public class CreatePasteRequestValidator : AbstractValidator<CreatePasteRequest>
 {
-    private const int MaxContentBytes = 50 * 1024; // 50 KB
-
-    public CreatePasteRequestValidator()
+    public CreatePasteRequestValidator(IOptions<PasteOptions> options)
     {
+        var maxBytes = options.Value.MaxContentBytes;
+
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("Content is required.")
-            .Must(c => System.Text.Encoding.UTF8.GetByteCount(c) <= MaxContentBytes)
-            .WithMessage("Content must not exceed 50 KB.");
+            .Must(c => System.Text.Encoding.UTF8.GetByteCount(c) <= maxBytes)
+            .WithMessage($"Content must not exceed {maxBytes / 1024} KB.");
 
         RuleFor(x => x.Title)
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
