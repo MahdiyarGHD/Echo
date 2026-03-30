@@ -1,7 +1,3 @@
-// Shared types and client-side functions.
-// All fetches go to same-origin Next.js route handlers — the real backend URL
-// stays on the server and is never exposed to the browser.
-
 export interface PasteResponse {
   accessCode: string;
   content: string;
@@ -17,7 +13,7 @@ export interface CreatePasteRequest {
   content: string;
   title?: string;
   isProtected: boolean;
-  expirationTime?: string;
+  expireHours: number;
   isExplosive: boolean;
 }
 

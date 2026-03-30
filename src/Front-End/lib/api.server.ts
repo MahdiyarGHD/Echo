@@ -1,6 +1,5 @@
 import type { PasteResponse, CreatePasteRequest, ApiError } from "@/lib/api";
 
-// This file is server-only. It reads API_URL which is never sent to the browser.
 const API_URL = process.env.API_URL || "http://localhost:5000";
 
 export async function fetchPaste(accessCode: string): Promise<PasteResponse> {

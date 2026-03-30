@@ -7,7 +7,7 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLocale}
-      className="px-3 py-1 text-sm rounded-md border border-[#2a2a2a] bg-[#1a1a1a] text-[#a3a3a3] hover:text-[#f5f5f5] hover:border-[#6366f1] transition-colors"
+      className="px-3 py-1 text-sm rounded-md border border-[#334155] bg-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0] hover:border-[#6366f1] transition-colors"
       aria-label="Toggle language"
     >
       {locale === "en" ? "فارسی" : "English"}

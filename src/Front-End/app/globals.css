@@ -5,13 +5,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f0f0f;
-  --surface: #1a1a1a;
-  --border: #2a2a2a;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
   --accent: #6366f1;
   --accent-hover: #4f46e5;
-  --text-primary: #f5f5f5;
-  --text-secondary: #a3a3a3;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
+*, *::before, *::after {
+  font-family: inherit;
 }
 
 body {
@@ -22,4 +26,27 @@ body {
 
 [dir="rtl"] body {
   font-family: 'Vazirmatn', sans-serif;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
