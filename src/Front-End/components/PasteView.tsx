@@ -1,37 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { getPaste, PasteResponse, ApiError } from "@/lib/api";
+import type { PasteResponse, ApiError } from "@/lib/api";
 import { decryptContent } from "@/lib/crypto";
 
 interface Props {
-  accessCode: string;
+  paste: PasteResponse | null;
+  errorType: ApiError["type"] | null;
 }
 
-export default function PasteView({ accessCode }: Props) {
+export default function PasteView({ paste, errorType }: Props) {
   const { t, locale } = useLanguage();
-  const [paste, setPaste] = useState<PasteResponse | null>(null);
-  const [errorKey, setErrorKey] = useState<string | null>(null);
-  const error = errorKey ? t(errorKey as Parameters<typeof t>[0]) : null;
-  const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [decrypted, setDecrypted] = useState<string | null>(null);
   const [decryptError, setDecryptError] = useState<string | null>(null);
   const [decrypting, setDecrypting] = useState(false);
   const [contentCopied, setContentCopied] = useState(false);
-
-  useEffect(() => {
-    getPaste(accessCode)
-      .then(setPaste)
-      .catch((err: ApiError) => {
-        if (err.type === "notFound") setErrorKey("pasteNotFound");
-        else if (err.type === "rateLimit") setErrorKey("tooManyRequests");
-        else if (err.type === "network") setErrorKey("networkError");
-        else setErrorKey("errorOccurred");
-      })
-      .finally(() => setLoading(false));
-  }, [accessCode]);
 
   const handleDecrypt = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,22 +48,20 @@ export default function PasteView({ accessCode }: Props) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full max-w-3xl mx-auto space-y-4 animate-pulse">
-        <div className="h-8 bg-[#1a1a1a] rounded-lg w-1/3" />
-        <div className="h-4 bg-[#1a1a1a] rounded w-1/2" />
-        <div className="h-48 bg-[#1a1a1a] rounded-xl" />
-      </div>
-    );
-  }
-
-  if (error) {
+  if (errorType) {
+    const errorKey =
+      errorType === "notFound"
+        ? "pasteNotFound"
+        : errorType === "rateLimit"
+        ? "tooManyRequests"
+        : errorType === "network"
+        ? "networkError"
+        : "errorOccurred";
     return (
       <div className="w-full max-w-3xl mx-auto">
         <div className="rounded-xl border border-red-800 bg-red-900/10 p-8 text-center space-y-3">
           <div className="text-4xl">⚠️</div>
-          <p className="text-red-400 font-medium">{error}</p>
+          <p className="text-red-400 font-medium">{t(errorKey as Parameters<typeof t>[0])}</p>
           <a href="/" className="inline-block text-sm text-[#6366f1] hover:underline mt-2">
             ← {t("createPaste")}
           </a>
@@ -180,3 +163,4 @@ export default function PasteView({ accessCode }: Props) {
     </div>
   );
 }
+

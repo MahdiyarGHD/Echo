@@ -1,0 +1,60 @@
+import type { PasteResponse, CreatePasteRequest, ApiError } from "@/lib/api";
+
+// This file is server-only. It reads API_URL which is never sent to the browser.
+const API_URL = process.env.API_URL || "http://localhost:5000";
+
+export async function fetchPaste(accessCode: string): Promise<PasteResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/pastes/${encodeURIComponent(accessCode)}`, {
+      cache: "no-store",
+    });
+  } catch {
+    throw { type: "network", message: "Network error" } as ApiError;
+  }
+
+  if (res.status === 200) return res.json();
+
+  let body: unknown;
+  try {
+    body = await res.json();
+  } catch {
+    body = {};
+  }
+
+  if (res.status === 404) {
+    const b = body as { detail?: string };
+    throw { type: "notFound", message: b.detail || "Not found." } as ApiError;
+  }
+  if (res.status === 429) throw { type: "rateLimit", message: "Too many requests." } as ApiError;
+  throw { type: "server", message: "Server error." } as ApiError;
+}
+
+export async function postPaste(req: CreatePasteRequest): Promise<PasteResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/pastes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    });
+  } catch {
+    throw { type: "network", message: "Network error" } as ApiError;
+  }
+
+  if (res.status === 201) return res.json();
+
+  let body: unknown;
+  try {
+    body = await res.json();
+  } catch {
+    body = {};
+  }
+
+  if (res.status === 400) {
+    const b = body as { title?: string; errors?: Record<string, string[]> };
+    throw { type: "validation", message: b.title || "Validation failed.", fieldErrors: b.errors } as ApiError;
+  }
+  if (res.status === 429) throw { type: "rateLimit", message: "Too many requests." } as ApiError;
+  throw { type: "server", message: "Server error." } as ApiError;
+}
