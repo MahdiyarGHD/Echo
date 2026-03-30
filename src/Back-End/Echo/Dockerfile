@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.hamdocker.ir/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["src/Back-End/Echo/Echo.csproj", "Back-End/Echo/"]
@@ -8,7 +8,7 @@ COPY src/Back-End/Echo/ Back-End/Echo/
 WORKDIR /src/Back-End/Echo
 RUN dotnet publish -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.hamdocker.ir/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 COPY --from=build /app/publish .
