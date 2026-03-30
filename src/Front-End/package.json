@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@fontsource/vazirmatn": "^5.2.8",
-    "next": "14.2.35",
+    "next": "^15.5.14",
     "react": "^18",
     "react-dom": "^18"
   },
