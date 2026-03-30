@@ -79,7 +79,7 @@ export default function PasteView({ paste, errorType }: Props) {
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <h1 className="text-2xl font-bold text-[#f5f5f5] break-words">
+          <h1 className="text-2xl font-bold text-[#e2e8f0] break-words">
             {paste.title || t("viewPaste")}
           </h1>
           <div className="flex gap-2 flex-wrap">
@@ -97,7 +97,7 @@ export default function PasteView({ paste, errorType }: Props) {
         </div>
 
         {/* Metadata */}
-        <div className="flex flex-wrap gap-4 text-xs text-[#a3a3a3]">
+        <div className="flex flex-wrap gap-4 text-xs text-[#94a3b8]">
           <span>{t("created")}: {formatDate(paste.createdAt)}</span>
           <span>
             {t("expires")}:{" "}
@@ -109,16 +109,16 @@ export default function PasteView({ paste, errorType }: Props) {
 
       {/* Password form */}
       {paste.isProtected && !decrypted && (
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6 space-y-4">
-          <h2 className="text-lg font-medium text-[#f5f5f5]">🔒 {t("protectedPaste")}</h2>
-          <p className="text-sm text-[#a3a3a3]">{t("enterPasswordDecrypt")}</p>
+        <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-6 space-y-4">
+          <h2 className="text-lg font-medium text-[#e2e8f0]">🔒 {t("protectedPaste")}</h2>
+          <p className="text-sm text-[#94a3b8]">{t("enterPasswordDecrypt")}</p>
           <form onSubmit={handleDecrypt} className="flex gap-2">
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("passwordPlaceholder")}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f5f5] placeholder-[#4a4a4a] focus:outline-none focus:border-[#6366f1] text-sm"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] text-sm"
             />
             <button
               type="submit"
@@ -138,16 +138,16 @@ export default function PasteView({ paste, errorType }: Props) {
       {displayContent !== null && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[#a3a3a3]">{t("content")}</span>
+            <span className="text-xs text-[#94a3b8]">{t("content")}</span>
             <button
               onClick={handleCopyContent}
-              className="px-3 py-1.5 text-xs bg-[#1a1a1a] hover:bg-[#2a2a2a] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#f5f5f5] rounded-md transition-colors"
+              className="px-3 py-1.5 text-xs bg-[#1e293b] hover:bg-[#334155] border border-[#334155] text-[#94a3b8] hover:text-[#e2e8f0] rounded-md transition-colors"
             >
               {contentCopied ? t("copied") : t("copyContent")}
             </button>
           </div>
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] p-5">
-            <pre className="text-sm text-[#f5f5f5] whitespace-pre-wrap break-words font-mono leading-relaxed">
+          <div className="rounded-xl border border-[#334155] bg-[#0f172a] p-5">
+            <pre className="text-sm text-[#e2e8f0] whitespace-pre-wrap break-words font-mono leading-relaxed">
               {displayContent}
             </pre>
           </div>
@@ -156,7 +156,7 @@ export default function PasteView({ paste, errorType }: Props) {
 
       <a
         href="/"
-        className="inline-block text-sm text-[#a3a3a3] hover:text-[#6366f1] transition-colors"
+        className="inline-block text-sm text-[#94a3b8] hover:text-[#6366f1] transition-colors"
       >
         ← {t("createPaste")}
       </a>

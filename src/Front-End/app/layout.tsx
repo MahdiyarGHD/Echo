@@ -16,11 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-[#0f0f0f] text-[#f5f5f5]">
+      <body className="min-h-screen flex flex-col bg-[#0f172a] text-[#e2e8f0]">
         <LanguageProvider>
-          <header className="sticky top-0 z-50 border-b border-[#2a2a2a] bg-[#0f0f0f]/80 backdrop-blur-sm">
+          <header className="sticky top-0 z-50 border-b border-[#334155] bg-[#0f172a]/80 backdrop-blur-sm">
             <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-              <a href="/" className="text-xl font-bold text-[#f5f5f5] hover:text-[#6366f1] transition-colors">
+              <a href="/" className="text-xl font-bold text-[#e2e8f0] hover:text-[#6366f1] transition-colors">
                 Echo
               </a>
               <LanguageToggle />

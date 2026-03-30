@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { createPaste, ApiError } from "@/lib/api";
+import { createPasteAction } from "@/app/actions";
 import { encryptContent } from "@/lib/crypto";
 
-const MAX_CONTENT_BYTES = 51200;
-const MAX_ENCRYPTED_BYTES = 102400;
+// Character limit for paste content (backend enforces its own byte limit for storage)
+const MAX_CONTENT_CHARS = 10000;
 const MAX_TITLE_CHARS = 200;
 
 const EXPIRATION_OPTIONS = [
@@ -27,10 +27,6 @@ function getExpirationTime(hours: number): string {
   return d.toISOString();
 }
 
-function byteLength(str: string): number {
-  return new TextEncoder().encode(str).length;
-}
-
 export default function PasteForm() {
   const { t } = useLanguage();
   const [title, setTitle] = useState("");
@@ -45,9 +41,8 @@ export default function PasteForm() {
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const contentBytes = byteLength(content);
-  const maxBytes = isProtected ? MAX_ENCRYPTED_BYTES : MAX_CONTENT_BYTES;
-  const bytesOver = contentBytes > maxBytes;
+  const contentChars = content.length;
+  const charsOver = contentChars > MAX_CONTENT_CHARS;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +50,7 @@ export default function PasteForm() {
     setFieldErrors({});
 
     if (!content.trim()) return;
-    if (bytesOver) return;
+    if (charsOver) return;
     if (isProtected && !password) return;
 
     setLoading(true);
@@ -71,7 +66,7 @@ export default function PasteForm() {
           ? getExpirationTime(expirationOption.hours)
           : undefined;
 
-      const result = await createPaste({
+      const result = await createPasteAction({
         content: finalContent,
         title: title || undefined,
         isProtected,
@@ -79,20 +74,25 @@ export default function PasteForm() {
         isExplosive,
       });
 
-      const url = `${window.location.origin}/${result.accessCode}`;
-      setCreatedUrl(url);
-    } catch (err) {
-      const apiErr = err as ApiError;
-      if (apiErr.type === "validation") {
-        setFieldErrors(apiErr.fieldErrors || {});
-        setError(apiErr.message);
-      } else if (apiErr.type === "rateLimit") {
-        setError(t("tooManyRequests"));
-      } else if (apiErr.type === "network") {
-        setError(t("networkError"));
-      } else {
-        setError(t("errorOccurred"));
+      if (!result.ok) {
+        const apiErr = result.error;
+        if (apiErr.type === "validation") {
+          setFieldErrors(apiErr.fieldErrors || {});
+          setError(t("errorOccurred"));
+        } else if (apiErr.type === "rateLimit") {
+          setError(t("tooManyRequests"));
+        } else if (apiErr.type === "network") {
+          setError(t("networkError"));
+        } else {
+          setError(t("errorOccurred"));
+        }
+        return;
       }
+
+      const url = `${window.location.origin}/${result.data.accessCode}`;
+      setCreatedUrl(url);
+    } catch {
+      setError(t("errorOccurred"));
     } finally {
       setLoading(false);
     }
@@ -119,12 +119,12 @@ export default function PasteForm() {
 
   if (createdUrl) {
     return (
-      <div className="w-full max-w-2xl mx-auto">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-8 text-center space-y-6">
+      <div className="w-full max-w-2xl mx-auto animate-fade-in">
+        <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-8 text-center space-y-6">
           <div className="text-4xl">✅</div>
-          <h2 className="text-2xl font-bold text-[#f5f5f5]">{t("pasteCreated")}</h2>
-          <p className="text-[#a3a3a3]">{t("shareLink")}</p>
-          <div className="flex items-center gap-2 bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg px-4 py-3">
+          <h2 className="text-2xl font-bold text-[#e2e8f0]">{t("pasteCreated")}</h2>
+          <p className="text-[#94a3b8]">{t("shareLink")}</p>
+          <div className="flex items-center gap-2 bg-[#0f172a] border border-[#334155] rounded-lg px-4 py-3">
             <span className="flex-1 text-sm text-[#6366f1] break-all text-start">{createdUrl}</span>
             <button
               onClick={handleCopyLink}
@@ -141,7 +141,7 @@ export default function PasteForm() {
           </a>
           <button
             onClick={handleReset}
-            className="block w-full text-sm text-[#a3a3a3] hover:text-[#f5f5f5] transition-colors mt-2"
+            className="block w-full text-sm text-[#94a3b8] hover:text-[#e2e8f0] transition-colors mt-2"
           >
             {t("createPaste")} →
           </button>
@@ -151,13 +151,13 @@ export default function PasteForm() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Title */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-[#a3a3a3]">{t("title")}</label>
-            <span className="text-xs text-[#a3a3a3]">
+            <label className="text-sm font-medium text-[#94a3b8]">{t("title")}</label>
+            <span className="text-xs text-[#94a3b8]">
               {t("charactersRemaining")} {MAX_TITLE_CHARS - title.length}
             </span>
           </div>
@@ -166,7 +166,7 @@ export default function PasteForm() {
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE_CHARS))}
             placeholder={t("titlePlaceholder")}
-            className="w-full px-4 py-2.5 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f5f5] placeholder-[#4a4a4a] focus:outline-none focus:border-[#6366f1] transition-colors text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] transition-colors text-sm"
           />
           {fieldErrors["Title"] && (
             <p className="text-xs text-red-400">{fieldErrors["Title"].join(", ")}</p>
@@ -176,9 +176,9 @@ export default function PasteForm() {
         {/* Content */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-[#a3a3a3]">{t("content")}</label>
-            <span className={`text-xs ${bytesOver ? "text-red-400" : "text-[#a3a3a3]"}`}>
-              {t("bytesUsed")} {contentBytes}/{maxBytes}
+            <label className="text-sm font-medium text-[#94a3b8]">{t("content")}</label>
+            <span className={`text-xs ${charsOver ? "text-red-400" : "text-[#94a3b8]"}`}>
+              {t("charactersUsed")} {contentChars}/{MAX_CONTENT_CHARS}
             </span>
           </div>
           <textarea
@@ -187,7 +187,7 @@ export default function PasteForm() {
             placeholder={t("contentPlaceholder")}
             required
             rows={10}
-            className={`w-full px-4 py-2.5 rounded-lg border ${bytesOver ? "border-red-500" : "border-[#2a2a2a]"} bg-[#0f0f0f] text-[#f5f5f5] placeholder-[#4a4a4a] focus:outline-none focus:border-[#6366f1] transition-colors text-sm font-mono resize-y`}
+            className={`w-full px-4 py-2.5 rounded-lg border ${charsOver ? "border-red-500" : "border-[#334155]"} bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] transition-colors text-sm font-mono resize-y`}
           />
           {fieldErrors["Content"] && (
             <p className="text-xs text-red-400">{fieldErrors["Content"].join(", ")}</p>
@@ -198,11 +198,11 @@ export default function PasteForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Expiration */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#a3a3a3]">{t("expiration")}</label>
+            <label className="text-sm font-medium text-[#94a3b8]">{t("expiration")}</label>
             <select
               value={expiration}
               onChange={(e) => setExpiration(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f5f5] focus:outline-none focus:border-[#6366f1] transition-colors text-sm appearance-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] focus:outline-none focus:border-[#6366f1] transition-colors text-sm appearance-none"
             >
               {EXPIRATION_OPTIONS.map((opt) => (
                 <option key={opt.key} value={opt.key}>
@@ -223,10 +223,10 @@ export default function PasteForm() {
                   onChange={(e) => setIsProtected(e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`w-10 h-5 rounded-full transition-colors ${isProtected ? "bg-[#6366f1]" : "bg-[#2a2a2a]"}`} />
+                <div className={`w-10 h-5 rounded-full transition-colors ${isProtected ? "bg-[#6366f1]" : "bg-[#334155]"}`} />
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${isProtected ? "translate-x-5" : "translate-x-0"}`} />
               </div>
-              <span className="text-sm text-[#a3a3a3]">{t("passwordProtection")}</span>
+              <span className="text-sm text-[#94a3b8]">{t("passwordProtection")}</span>
             </label>
 
             {/* Burn after read toggle */}
@@ -238,10 +238,10 @@ export default function PasteForm() {
                   onChange={(e) => setIsExplosive(e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`w-10 h-5 rounded-full transition-colors ${isExplosive ? "bg-orange-500" : "bg-[#2a2a2a]"}`} />
+                <div className={`w-10 h-5 rounded-full transition-colors ${isExplosive ? "bg-orange-500" : "bg-[#334155]"}`} />
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${isExplosive ? "translate-x-5" : "translate-x-0"}`} />
               </div>
-              <span className="text-sm text-[#a3a3a3]">🔥 {t("burnAfterRead")}</span>
+              <span className="text-sm text-[#94a3b8]">🔥 {t("burnAfterRead")}</span>
             </label>
           </div>
         </div>
@@ -249,14 +249,14 @@ export default function PasteForm() {
         {/* Password input (conditional) */}
         {isProtected && (
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#a3a3a3]">🔒 {t("password")}</label>
+            <label className="text-sm font-medium text-[#94a3b8]">🔒 {t("password")}</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("passwordPlaceholder")}
               required={isProtected}
-              className="w-full px-4 py-2.5 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-[#f5f5f5] placeholder-[#4a4a4a] focus:outline-none focus:border-[#6366f1] transition-colors text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] transition-colors text-sm"
             />
           </div>
         )}
@@ -271,7 +271,7 @@ export default function PasteForm() {
         {/* Submit */}
         <button
           type="submit"
-          disabled={loading || bytesOver || !content.trim() || (isProtected && !password)}
+          disabled={loading || charsOver || !content.trim() || (isProtected && !password)}
           className="w-full py-3 rounded-lg bg-[#6366f1] hover:bg-[#4f46e5] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition-colors"
         >
           {loading ? t("loading") : t("createPaste")}
