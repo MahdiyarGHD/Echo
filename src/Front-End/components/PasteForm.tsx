@@ -9,7 +9,6 @@ const MAX_CONTENT_CHARS = 10000;
 const MAX_TITLE_CHARS = 200;
 
 const EXPIRATION_OPTIONS = [
-  { key: "never", hours: null },
   { key: "1hour", hours: 1 },
   { key: "3hours", hours: 3 },
   { key: "6hours", hours: 6 },
@@ -26,7 +25,7 @@ export default function PasteForm() {
   const [content, setContent] = useState("");
   const [isProtected, setIsProtected] = useState(false);
   const [password, setPassword] = useState("");
-  const [expiration, setExpiration] = useState<string>("never");
+  const [expiration, setExpiration] = useState<string>("1day");
   const [isExplosive, setIsExplosive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,8 +52,8 @@ export default function PasteForm() {
         finalContent = await encryptContent(content, password);
       }
 
-      const expirationOption = EXPIRATION_OPTIONS.find((o) => o.key === expiration);
-      const expireHours = expirationOption?.hours ?? undefined;
+      const expirationOption = EXPIRATION_OPTIONS.find((o) => o.key === expiration)!;
+      const expireHours = expirationOption.hours;
 
       const result = await createPasteAction({
         content: finalContent,
@@ -101,7 +100,7 @@ export default function PasteForm() {
     setContent("");
     setIsProtected(false);
     setPassword("");
-    setExpiration("never");
+    setExpiration("1day");
     setIsExplosive(false);
     setError(null);
     setFieldErrors({});

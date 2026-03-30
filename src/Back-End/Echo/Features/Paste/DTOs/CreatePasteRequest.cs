@@ -9,7 +9,7 @@ public class CreatePasteRequest
     public string Content { get; set; } = string.Empty;
     public string? Title { get; set; }
     public bool IsProtected { get; set; }
-    public int? ExpireHours { get; set; }
+    public int ExpireHours { get; set; }
     public bool IsExplosive { get; set; }
 }
 
@@ -39,7 +39,6 @@ public class CreatePasteRequestValidator : AbstractValidator<CreatePasteRequest>
             .When(x => x.Title is not null);
 
         RuleFor(x => x.ExpireHours)
-            .InclusiveBetween(1, 336).WithMessage("ExpireHours must be between 1 and 336.")
-            .When(x => x.ExpireHours.HasValue);
+            .InclusiveBetween(1, 336).WithMessage("ExpireHours must be between 1 and 336.");
     }
 }

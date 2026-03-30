@@ -13,7 +13,7 @@ export interface CreatePasteRequest {
   content: string;
   title?: string;
   isProtected: boolean;
-  expireHours?: number;
+  expireHours: number;
   isExplosive: boolean;
 }
 
