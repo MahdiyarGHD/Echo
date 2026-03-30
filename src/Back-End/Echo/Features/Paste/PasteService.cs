@@ -63,8 +63,35 @@ public class PasteService(
         }
         else
         {
-            paste.ViewCount++;
-            logger.LogInformation("Paste '{AccessCode}' retrieved. View count: {ViewCount}.", accessCode, paste.ViewCount);
+            var clientIp = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+            var hashedIp = clientIp is null ? null : HashIp(clientIp);
+
+            var alreadyViewed = hashedIp is not null && await dbContext.PasteViews
+                .AnyAsync(v => v.PasteId == paste.Id
+                    && v.HashedIp == hashedIp
+                    && v.ViewedAt >= DateTime.UtcNow.AddHours(-24), cancellationToken);
+
+            if (!alreadyViewed)
+            {
+                paste.ViewCount++;
+
+                if (hashedIp is not null)
+                {
+                    dbContext.PasteViews.Add(new Features.Paste.Models.PasteView
+                    {
+                        Id = Guid.NewGuid(),
+                        PasteId = paste.Id,
+                        HashedIp = hashedIp,
+                        ViewedAt = DateTime.UtcNow
+                    });
+                }
+
+                logger.LogInformation("Paste '{AccessCode}' retrieved. View count: {ViewCount}.", accessCode, paste.ViewCount);
+            }
+            else
+            {
+                logger.LogInformation("Paste '{AccessCode}' retrieved by returning IP. View count unchanged: {ViewCount}.", accessCode, paste.ViewCount);
+            }
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
