@@ -1,3 +1,4 @@
+using Echo;
 using Echo.Common.Middleware;
 using Echo.Common.Options;
 using Echo.Common.Persistence;
@@ -5,7 +6,6 @@ using Echo.Common.Providers;
 using Echo.Common.Security;
 using Echo.Common.Services;
 using Echo.Features.Paste;
-using Echo.Features.Paste.DTOs;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +15,12 @@ builder.Services.AddDbContext<EchoDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
         ?? "Data Source=echo.db"));
 
+builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<PasteService>();
 builder.Services.AddScoped<AccessCodeGenerator>();
-builder.Services.AddValidatorsFromAssemblyContaining<CreatePasteRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<IAssemblyMarker>();
 builder.Services.AddEchoRateLimiting(builder.Configuration);
 builder.Services.AddEchoCors(builder.Configuration);
 builder.Services.AddTransient<GlobalExceptionHandler>();
@@ -30,12 +31,21 @@ builder.Services.AddHostedService<DatabaseMaintenanceService>();
 
 var app = builder.Build();
 
+
+if (builder.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "My API v1");
+    });
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EchoDbContext>();
     db.Database.Migrate();
 }
-
 app.Use(async (context, next) =>
 {
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -43,7 +53,6 @@ app.Use(async (context, next) =>
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
     await next();
 });
-
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseCors(CorsConfiguration.PolicyName);
 app.UseRateLimiter();

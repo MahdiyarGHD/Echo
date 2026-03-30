@@ -18,18 +18,32 @@ public class CreatePasteRequestValidator : AbstractValidator<CreatePasteRequest>
     public CreatePasteRequestValidator(IOptions<PasteOptions> options)
     {
         var maxBytes = options.Value.MaxContentBytes;
+        var maxEncryptedBytes = options.Value.MaxEncryptedContentBytes;
 
-        RuleFor(x => x.Content)
-            .NotEmpty().WithMessage("Content is required.")
-            .Must(c => System.Text.Encoding.UTF8.GetByteCount(c) <= maxBytes)
-            .WithMessage($"Content must not exceed {maxBytes / 1024} KB.");
+        When(x => x.IsProtected, () => 
+        {
+            RuleFor(x => x.Content)
+                .NotEmpty().WithMessage("Content is required.")
+                .Must(c => System.Text.Encoding.UTF8.GetByteCount(c) <= maxEncryptedBytes)
+                .WithMessage($"Encrypted content must not exceed {maxEncryptedBytes / 1024} KB.");
+        }).Otherwise(() => 
+        {
+            RuleFor(x => x.Content)
+                .NotEmpty().WithMessage("Content is required.")
+                .Must(c => System.Text.Encoding.UTF8.GetByteCount(c) <= maxBytes)
+                .WithMessage($"Content must not exceed {maxBytes / 1024} KB.");
+        });
 
         RuleFor(x => x.Title)
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
             .When(x => x.Title is not null);
 
         RuleFor(x => x.ExpirationTime)
+            .NotNull()
+            .WithMessage("Expiration time is required.")
             .Must(exp => exp > DateTime.UtcNow).WithMessage("ExpirationTime must be in the future.")
-            .When(x => x.ExpirationTime.HasValue);
+            .When(x => x.ExpirationTime.HasValue)
+            .Must(exp => exp?.Day < 14)
+            .WithMessage("ExpirationTime cannot be in more than 14 days.");
     }
 }
