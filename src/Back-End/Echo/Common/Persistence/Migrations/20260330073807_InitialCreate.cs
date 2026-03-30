@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,16 +15,16 @@ namespace Echo.Common.Persistence.Migrations
                 name: "Pastes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AccessCode = table.Column<string>(type: "TEXT", maxLength: 5, nullable: false),
-                    Content = table.Column<string>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    IsProtected = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ExpirationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 64, nullable: true),
-                    ViewCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsExplosive = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccessCode = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    IsProtected = table.Column<bool>(type: "boolean", nullable: false),
+                    ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    CreatedBy = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false),
+                    IsExplosive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

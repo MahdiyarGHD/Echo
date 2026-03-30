@@ -12,8 +12,9 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<EchoDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Data Source=echo.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Host=localhost;Database=echo;Username=echo;Password=echo_password",
+        npgsql => npgsql.EnableRetryOnFailure()));
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();

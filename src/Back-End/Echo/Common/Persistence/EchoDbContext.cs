@@ -6,6 +6,7 @@ namespace Echo.Common.Persistence;
 public class EchoDbContext(DbContextOptions<EchoDbContext> options) : DbContext(options)
 {
     public DbSet<Paste> Pastes => Set<Paste>();
+    public DbSet<PasteView> PasteViews => Set<PasteView>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,7 +33,18 @@ public class EchoDbContext(DbContextOptions<EchoDbContext> options) : DbContext(
                 .HasMaxLength(64);
 
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                .HasDefaultValueSql("now()");
+        });
+
+        modelBuilder.Entity<PasteView>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.HashedIp)
+                .IsRequired()
+                .HasMaxLength(64);
+
+            entity.HasIndex(e => new { e.PasteId, e.HashedIp });
         });
     }
 }

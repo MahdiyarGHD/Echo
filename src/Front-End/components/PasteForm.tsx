@@ -109,31 +109,45 @@ export default function PasteForm() {
   if (createdUrl) {
     return (
       <div className="w-full max-w-2xl mx-auto animate-fade-in">
-        <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-8 text-center space-y-6">
-          <div className="text-4xl">✅</div>
-          <h2 className="text-2xl font-bold text-[#e2e8f0]">{t("pasteCreated")}</h2>
-          <p className="text-[#94a3b8]">{t("shareLink")}</p>
+        <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-6 text-center space-y-5">
+          <div className="text-3xl">✅</div>
+          <h2 className="text-xl font-bold text-[#e2e8f0]">{t("pasteCreated")}</h2>
+          <p className="text-sm text-[#94a3b8]">{t("shareLink")}</p>
           <div className="flex items-center gap-2 bg-[#0f172a] border border-[#334155] rounded-lg px-4 py-3">
-            <span className="flex-1 text-sm text-[#6366f1] break-all text-start">{createdUrl}</span>
+            <span className="flex-1 text-sm font-semibold text-[#6366f1] break-all text-start">{createdUrl}</span>
             <button
               onClick={handleCopyLink}
-              className="shrink-0 px-3 py-1.5 text-sm bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-md transition-colors"
+              className="shrink-0 px-3 py-1.5 text-xs bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-md transition-colors"
             >
               {linkCopied ? t("copied") : t("copyLink")}
             </button>
           </div>
-          <a
-            href={createdUrl}
-            className="inline-block px-6 py-2.5 bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-lg font-medium transition-colors"
-          >
-            {t("viewPaste")}
-          </a>
-          <button
-            onClick={handleReset}
-            className="block w-full text-sm text-[#94a3b8] hover:text-[#e2e8f0] transition-colors mt-2"
-          >
-            {t("createPaste")} →
-          </button>
+          <div className="flex items-center justify-center gap-3">
+            <a
+              href={createdUrl}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#6366f1] hover:bg-[#4f46e5] text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {t("viewPaste")}
+            </a>
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center gap-1.5 px-4 py-2 border border-[#334155] hover:border-[#6366f1] text-sm text-[#94a3b8] hover:text-[#e2e8f0] rounded-lg transition-colors group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {t("createPaste")}
+            </button>
+          </div>
         </div>
       </div>
     );
