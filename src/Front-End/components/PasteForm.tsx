@@ -5,12 +5,11 @@ import { useLanguage } from "@/context/LanguageContext";
 import { createPasteAction } from "@/app/actions";
 import { encryptContent } from "@/lib/crypto";
 
-// Character limit for paste content (backend enforces its own byte limit for storage)
 const MAX_CONTENT_CHARS = 10000;
 const MAX_TITLE_CHARS = 200;
 
 const EXPIRATION_OPTIONS = [
-  { key: "never", value: null },
+  { key: "never", hours: null },
   { key: "1hour", hours: 1 },
   { key: "3hours", hours: 3 },
   { key: "6hours", hours: 6 },
@@ -20,12 +19,6 @@ const EXPIRATION_OPTIONS = [
   { key: "7days", hours: 168 },
   { key: "14days", hours: 336 },
 ] as const;
-
-function getExpirationTime(hours: number): string {
-  const d = new Date();
-  d.setHours(d.getHours() + hours);
-  return d.toISOString();
-}
 
 export default function PasteForm() {
   const { t } = useLanguage();
@@ -61,16 +54,13 @@ export default function PasteForm() {
       }
 
       const expirationOption = EXPIRATION_OPTIONS.find((o) => o.key === expiration);
-      const expirationTime =
-        expirationOption && "hours" in expirationOption
-          ? getExpirationTime(expirationOption.hours)
-          : undefined;
+      const expireHours = expirationOption?.hours ?? undefined;
 
       const result = await createPasteAction({
         content: finalContent,
         title: title || undefined,
         isProtected,
-        expirationTime,
+        expireHours,
         isExplosive,
       });
 
@@ -153,7 +143,6 @@ export default function PasteForm() {
   return (
     <div className="w-full max-w-2xl mx-auto animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Title */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-[#94a3b8]">{t("title")}</label>
@@ -173,7 +162,6 @@ export default function PasteForm() {
           )}
         </div>
 
-        {/* Content */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-[#94a3b8]">{t("content")}</label>
@@ -194,9 +182,7 @@ export default function PasteForm() {
           )}
         </div>
 
-        {/* Options row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Expiration */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-[#94a3b8]">{t("expiration")}</label>
             <select
@@ -212,9 +198,7 @@ export default function PasteForm() {
             </select>
           </div>
 
-          {/* Toggles */}
           <div className="space-y-3 flex flex-col justify-end">
-            {/* Password protection toggle */}
             <label className="flex items-center gap-3 cursor-pointer">
               <div className="relative">
                 <input
@@ -229,7 +213,6 @@ export default function PasteForm() {
               <span className="text-sm text-[#94a3b8]">{t("passwordProtection")}</span>
             </label>
 
-            {/* Burn after read toggle */}
             <label className="flex items-center gap-3 cursor-pointer">
               <div className="relative">
                 <input
@@ -246,7 +229,6 @@ export default function PasteForm() {
           </div>
         </div>
 
-        {/* Password input (conditional) */}
         {isProtected && (
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-[#94a3b8]">🔒 {t("password")}</label>
@@ -261,14 +243,12 @@ export default function PasteForm() {
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="px-4 py-3 rounded-lg bg-red-900/20 border border-red-800 text-red-400 text-sm">
             {error}
           </div>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading || charsOver || !content.trim() || (isProtected && !password)}

@@ -29,7 +29,7 @@ public class PasteService(
             Content = request.Content,
             Title = request.Title,
             IsProtected = request.IsProtected,
-            ExpirationTime = request.ExpirationTime,
+            ExpirationTime = request.ExpireHours.HasValue ? DateTime.UtcNow.AddHours(request.ExpireHours.Value) : null,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = createdBy,
             ViewCount = 0,

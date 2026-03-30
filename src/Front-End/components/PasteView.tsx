@@ -76,7 +76,6 @@ export default function PasteView({ paste, errorType }: Props) {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      {/* Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <h1 className="text-2xl font-bold text-[#e2e8f0] break-words">
@@ -96,7 +95,6 @@ export default function PasteView({ paste, errorType }: Props) {
           </div>
         </div>
 
-        {/* Metadata */}
         <div className="flex flex-wrap gap-4 text-xs text-[#94a3b8]">
           <span>{t("created")}: {formatDate(paste.createdAt)}</span>
           <span>
@@ -107,7 +105,6 @@ export default function PasteView({ paste, errorType }: Props) {
         </div>
       </div>
 
-      {/* Password form */}
       {paste.isProtected && !decrypted && (
         <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-6 space-y-4">
           <h2 className="text-lg font-medium text-[#e2e8f0]">🔒 {t("protectedPaste")}</h2>
@@ -134,7 +131,6 @@ export default function PasteView({ paste, errorType }: Props) {
         </div>
       )}
 
-      {/* Content */}
       {displayContent !== null && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
