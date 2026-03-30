@@ -79,7 +79,7 @@ export default function PasteForm() {
         isExplosive,
       });
 
-      const url = `${window.location.origin}/paste/${result.accessCode}`;
+      const url = `${window.location.origin}/${result.accessCode}`;
       setCreatedUrl(url);
     } catch (err) {
       const apiErr = err as ApiError;
