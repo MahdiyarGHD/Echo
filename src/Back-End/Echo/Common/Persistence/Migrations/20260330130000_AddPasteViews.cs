@@ -15,10 +15,10 @@ namespace Echo.Common.Persistence.Migrations
                 name: "PasteViews",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PasteId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    HashedIp = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false),
-                    ViewedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PasteId = table.Column<Guid>(type: "uuid", nullable: false),
+                    HashedIp = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    ViewedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

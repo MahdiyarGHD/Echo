@@ -33,7 +33,7 @@ public class EchoDbContext(DbContextOptions<EchoDbContext> options) : DbContext(
                 .HasMaxLength(64);
 
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                .HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<PasteView>(entity =>

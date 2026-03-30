@@ -109,18 +109,18 @@ export default function PasteView({ paste, errorType }: Props) {
         <div className="rounded-xl border border-[#334155] bg-[#1e293b] p-6 space-y-4">
           <h2 className="text-lg font-medium text-[#e2e8f0]">🔒 {t("protectedPaste")}</h2>
           <p className="text-sm text-[#94a3b8]">{t("enterPasswordDecrypt")}</p>
-          <form onSubmit={handleDecrypt} className="flex gap-2">
+          <form onSubmit={handleDecrypt} className="flex flex-col sm:flex-row gap-2">
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("passwordPlaceholder")}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] text-sm"
+              className="w-full sm:flex-1 px-4 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-[#e2e8f0] placeholder-[#475569] focus:outline-none focus:border-[#6366f1] text-sm"
             />
             <button
               type="submit"
               disabled={decrypting || !password}
-              className="px-5 py-2.5 bg-[#6366f1] hover:bg-[#4f46e5] disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#6366f1] hover:bg-[#4f46e5] disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
             >
               {decrypting ? "..." : t("decrypt")}
             </button>

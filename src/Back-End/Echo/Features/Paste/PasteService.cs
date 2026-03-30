@@ -2,6 +2,7 @@ using Echo.Common.Exceptions;
 using Echo.Common.Persistence;
 using Echo.Common.Providers;
 using Echo.Features.Paste.DTOs;
+using Echo.Features.Paste.Models;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -77,7 +78,7 @@ public class PasteService(
 
                 if (hashedIp is not null)
                 {
-                    dbContext.PasteViews.Add(new Features.Paste.Models.PasteView
+                    dbContext.PasteViews.Add(new PasteView
                     {
                         Id = Guid.NewGuid(),
                         PasteId = paste.Id,

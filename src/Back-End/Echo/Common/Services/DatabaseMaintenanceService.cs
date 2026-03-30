@@ -53,7 +53,7 @@ public class DatabaseMaintenanceService(
 
         int totalDeleted = 0;
 
-        while (currentSize > _options.MaxSizeBytes)
+        while (true)
         {
             var batch = await dbContext.Pastes
                 .OrderBy(p => p.CreatedAt)
@@ -70,19 +70,15 @@ public class DatabaseMaintenanceService(
             await dbContext.SaveChangesAsync(cancellationToken);
             totalDeleted += batch.Count;
 
+            logger.LogDebug("Deleted batch of {Count} pastes. Total deleted so far: {Total}.", batch.Count, totalDeleted);
+
             currentSize = await GetDatabaseSizeBytesAsync(dbContext, cancellationToken);
-            logger.LogDebug(
-                "Deleted batch of {Count} pastes. Current size: {Size:N0} bytes.",
-                batch.Count, currentSize);
+            if (currentSize <= _options.MaxSizeBytes)
+                break;
         }
 
         if (totalDeleted > 0)
-        {
-            logger.LogInformation("Deleted {Total} pastes. Running VACUUM to reclaim space.", totalDeleted);
-            await dbContext.Database.ExecuteSqlRawAsync("VACUUM");
-            var finalSize = await GetDatabaseSizeBytesAsync(dbContext, cancellationToken);
-            logger.LogInformation("VACUUM complete. Final database size: {Size:N0} bytes.", finalSize);
-        }
+            logger.LogInformation("Database maintenance deleted {Total} paste(s). Current size: {Size:N0} bytes.", totalDeleted, currentSize);
     }
 
     private static async Task<long> GetDatabaseSizeBytesAsync(EchoDbContext dbContext, CancellationToken cancellationToken)
@@ -95,7 +91,10 @@ public class DatabaseMaintenanceService(
 
         try
         {
-            return await QueryDatabaseSizeAsync(connection);
+            await using var cmd = connection.CreateCommand();
+            cmd.CommandText = "SELECT pg_database_size(current_database())";
+            var result = await cmd.ExecuteScalarAsync(cancellationToken);
+            return Convert.ToInt64(result);
         }
         finally
         {
@@ -103,17 +102,6 @@ public class DatabaseMaintenanceService(
                 await connection.CloseAsync();
         }
     }
-
-    private static async Task<long> QueryDatabaseSizeAsync(DbConnection connection)
-    {
-        await using var cmd = connection.CreateCommand();
-
-        cmd.CommandText = "PRAGMA page_count";
-        var pageCount = Convert.ToInt64(await cmd.ExecuteScalarAsync());
-
-        cmd.CommandText = "PRAGMA page_size";
-        var pageSize = Convert.ToInt64(await cmd.ExecuteScalarAsync());
-
-        return pageCount * pageSize;
-    }
 }
+
+
