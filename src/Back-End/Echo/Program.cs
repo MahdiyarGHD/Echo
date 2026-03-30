@@ -28,6 +28,7 @@ builder.Services.AddTransient<GlobalExceptionHandler>();
 builder.Services.Configure<PasteOptions>(builder.Configuration.GetSection(PasteOptions.SectionName));
 builder.Services.Configure<DatabaseMaintenanceOptions>(builder.Configuration.GetSection(DatabaseMaintenanceOptions.SectionName));
 builder.Services.AddHostedService<DatabaseMaintenanceService>();
+builder.Services.AddHostedService<PasteCleanupService>();
 
 var app = builder.Build();
 
