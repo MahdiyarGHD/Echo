@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 import Footer from "@/components/Footer";
+
+const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+const plausibleUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_URL;
 
 export const metadata: Metadata = {
   title: "Echo",
@@ -31,6 +35,14 @@ export default function RootLayout({
           </main>
           <Footer />
         </LanguageProvider>
+        {plausibleDomain && plausibleUrl && (
+          <Script
+            defer
+            data-domain={plausibleDomain}
+            src={`${plausibleUrl}/js/script.js`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
