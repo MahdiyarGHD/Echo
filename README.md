@@ -1,6 +1,6 @@
 # Echo 🔊
 
-Echo is a modern full-stack application featuring a high-performance **ASP.NET** backend and a responsive **Next.js** frontend. The project is designed with scalability and containerization in mind, utilizing **Docker** for streamlined deployment and a **PostgreSQL** database for robust data management.
+Echo is a minimal full-stack application featuring a high-performance **ASP.NET** backend and a responsive **Next.js** frontend. The project is designed with scalability and containerization in mind, utilizing **Docker** for streamlined deployment and a **PostgreSQL** database for robust data management.
 
 ## 🛠️ Technology Stack
 
