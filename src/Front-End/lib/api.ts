@@ -47,3 +47,26 @@ export async function createPaste(req: CreatePasteRequest): Promise<PasteRespons
   if (res.status === 429) throw { type: "rateLimit", message: "Too many requests." } as ApiError;
   throw { type: "server", message: "Server error." } as ApiError;
 }
+
+export async function getPaste(accessCode: string): Promise<PasteResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`/api/pastes/${encodeURIComponent(accessCode)}`, {
+      cache: "no-store",
+    });
+  } catch {
+    throw { type: "network", message: "Network error" } as ApiError;
+  }
+
+  if (res.status === 200) return res.json();
+
+  let body: unknown;
+  try { body = await res.json(); } catch { body = {}; }
+
+  if (res.status === 404) {
+    const b = body as { title?: string };
+    throw { type: "notFound", message: b.title || "Not found." } as ApiError;
+  }
+  if (res.status === 429) throw { type: "rateLimit", message: "Too many requests." } as ApiError;
+  throw { type: "server", message: "Server error." } as ApiError;
+}

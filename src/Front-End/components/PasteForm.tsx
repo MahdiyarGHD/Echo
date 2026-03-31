@@ -78,7 +78,7 @@ export default function PasteForm() {
         return;
       }
 
-      const url = `${window.location.origin}/${result.data.accessCode}`;
+      const url = `${process.env.NEXT_PUBLIC_DOMAIN || window.location.origin}/${result.data.accessCode}`;
       setCreatedUrl(url);
     } catch {
       setError(t("errorOccurred"));
