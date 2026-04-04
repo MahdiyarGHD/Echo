@@ -28,6 +28,12 @@ public static class ForwardedHeadersConfiguration
             {
                 options.KnownProxies.Add(proxy);
             }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Invalid proxy network entry '{network}' in Proxy:TrustedNetworks. " +
+                    "Each entry must be a valid IP address or CIDR notation (e.g. '10.0.0.0/8').");
+            }
         }
 
         return app.UseForwardedHeaders(options);

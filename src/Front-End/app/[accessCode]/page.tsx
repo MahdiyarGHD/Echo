@@ -2,6 +2,7 @@ import { fetchPaste } from "@/lib/api.server";
 import type { ApiError } from "@/lib/api";
 import PasteView from "@/components/PasteView";
 import { headers } from "next/headers";
+import { getClientIp } from "@/lib/request";
 
 export default async function PastePage({
   params,
@@ -10,12 +11,7 @@ export default async function PastePage({
 }) {
   const { accessCode } = await params;
 
-  const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for");
-  const clientIp =
-    (forwardedFor ? forwardedFor.split(",")[0].trim() : null) ??
-    headersList.get("x-real-ip") ??
-    undefined;
+  const clientIp = getClientIp(await headers());
 
   try {
     const paste = await fetchPaste(accessCode, clientIp);
