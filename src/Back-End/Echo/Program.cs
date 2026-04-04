@@ -7,6 +7,7 @@ using Echo.Common.Security;
 using Echo.Common.Services;
 using Echo.Features.Paste;
 using FluentValidation;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +56,31 @@ app.Use(async (context, next) =>
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
     await next();
 });
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+};
+
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+
+var trustedNetworks = builder.Configuration.GetSection("Proxy:TrustedNetworks").Get<string[]>() ?? [];
+foreach (var network in trustedNetworks)
+{
+    var parts = network.Split('/');
+    if (parts.Length == 2
+        && System.Net.IPAddress.TryParse(parts[0], out var address)
+        && int.TryParse(parts[1], out var prefixLength))
+    {
+        forwardedHeadersOptions.KnownNetworks.Add(new IPNetwork(address, prefixLength));
+    }
+    else if (System.Net.IPAddress.TryParse(network, out var proxy))
+    {
+        forwardedHeadersOptions.KnownProxies.Add(proxy);
+    }
+}
+
+app.UseForwardedHeaders(forwardedHeadersOptions);
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseCors(CorsConfiguration.PolicyName);
 app.UseRateLimiter();

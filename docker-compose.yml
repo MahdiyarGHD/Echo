@@ -24,6 +24,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=db;Database=echo;Username=echo;Password=echo_password
       - Cors__AllowedOrigins__0=http://localhost:3000
+      - Proxy__TrustedNetworks__0=172.16.0.0/12
+      - Proxy__TrustedNetworks__1=10.0.0.0/8
     depends_on:
       db:
         condition: service_healthy

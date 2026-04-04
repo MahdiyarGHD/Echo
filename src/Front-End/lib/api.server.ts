@@ -2,11 +2,16 @@ import type { PasteResponse, CreatePasteRequest, ApiError } from "@/lib/api";
 
 const API_URL = process.env.API_URL || "http://localhost:5000";
 
-export async function fetchPaste(accessCode: string): Promise<PasteResponse> {
+export async function fetchPaste(accessCode: string, clientIp?: string): Promise<PasteResponse> {
   let res: Response;
+  const fetchHeaders: Record<string, string> = {};
+  if (clientIp) {
+    fetchHeaders["X-Forwarded-For"] = clientIp;
+  }
   try {
     res = await fetch(`${API_URL}/pastes/${encodeURIComponent(accessCode)}`, {
       cache: "no-store",
+      headers: fetchHeaders,
     });
   } catch {
     throw { type: "network", message: "Network error" } as ApiError;
