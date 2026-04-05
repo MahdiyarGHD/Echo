@@ -33,7 +33,6 @@ builder.Services.AddHostedService<PasteCleanupService>();
 
 var app = builder.Build();
 
-
 if (builder.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -48,6 +47,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<EchoDbContext>();
     db.Database.Migrate();
 }
+
 app.Use(async (context, next) =>
 {
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -55,6 +55,8 @@ app.Use(async (context, next) =>
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
     await next();
 });
+
+app.UseEchoForwardedHeaders(builder.Configuration);
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseCors(CorsConfiguration.PolicyName);
 app.UseRateLimiter();
