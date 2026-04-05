@@ -1,4 +1,4 @@
-FROM mcr.hamdocker.ir/dotnet/sdk:10.0 AS build
+FROM dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["src/Back-End/Echo/Echo.csproj", "Back-End/Echo/"]
